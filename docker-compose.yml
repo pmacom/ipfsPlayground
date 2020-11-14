@@ -1,0 +1,35 @@
+version: '3.1'
+services:
+  ui:
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 1234:1234
+      - 8885:8885
+    volumes:
+      - ./ui/src:/app/src
+    command: npm run bundle
+
+  ipfs:
+    image: ipfs/go-ipfs:latest
+    hostname: ipfs_host1
+    volumes:
+    - "./content:/export"
+    - "./ipfs/data:/data/ipfs"
+    ports:
+    - "5001:5001"
+    - "4001:4001"
+    - "8080:8080"
+
+  ipfs-watch:
+    build:
+      context: ./ipfs
+      dockerfile: Dockerfile
+    ports:
+      - 8886:8886
+    volumes:
+      - ./ipfs/index.js:/app/index.js
+      - ./content:/app/content
+    command: npm run start
